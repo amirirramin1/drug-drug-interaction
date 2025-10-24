@@ -1,0 +1,499 @@
+drive.mount('/content/drive')
+
+#from snf import datasets
+import numpy as np
+import pandas as pd
+#import snf
+#from snf import compute
+import sklearn.metrics
+from snf import datasets
+import snf
+from snf import compute
+
+sideeffect = pd.read_csv('/content/drive/MyDrive/drugdis/drugsideeffect.txt',sep=' ', header=None)
+print(sideeffect.head())
+print(sideeffect.shape)
+#sideeffect = sideeffect.replace(np.nan,0)
+
+protein = pd.read_csv('/content/drive/MyDrive/drugdis/drugprotein.txt',sep=' ', header=None)
+print(protein.head())
+print(protein.shape)
+proteinSim = sklearn.metrics.pairwise.cosine_similarity(protein, Y=None, dense_output=True)
+# # chemstractureSim = sklearn.metrics.pairwise.cosine_similarity(chemstracture, Y=None, dense_output=True)
+#chemstractureSim = chemstracture.copy()
+sideeffectSim = sklearn.metrics.pairwise.cosine_similarity(sideeffect, Y=None, dense_output=True)
+data = [proteinSim, sideeffectSim]
+# data = [chemstractureSim, proteinSim, sideeffectSim]
+# print(chemstractureSim)
+print(proteinSim)
+print(proteinSim.shape)
+
+
+
+print(sideeffectSim)
+print(sideeffectSim.shape)
+print(data)
+
+mat_disease = pd.read_csv('/content/drive/MyDrive/drugdis/diseasePhenotype.tex',sep=' ', header=None)
+print(mat_disease.shape)
+
+mat_disease_protein = pd.read_csv('/content/drive/MyDrive/drugdis/diseaseprotein.txt',sep=' ', header=None)
+print(mat_disease_protein.shape)
+
+#disse2 SNF
+fused_network = snf.snf(data, K=20)
+
+print(fused_network.shape)
+
+print(fused_network)
+
+pd.DataFrame(fused_network).to_csv("C:/Users/nematpour-N-PC/Desktop/Ramin/Drug disease/CosineSNFDises.csv")
+
+mat_disease = pd.read_csv('/content/drive/MyDrive/drugdis/diseasePhenotype.tex',sep=' ', header=None)
+print(mat_disease.shape)
+
+mat_disease_protein = pd.read_csv('/content/drive/MyDrive/drugdis/diseaseprotein.txt',sep=' ', header=None)
+print(mat_disease_protein.shape)
+
+
+#disse cosin similarity2
+mat_diseaseSim = sklearn.metrics.pairwise.cosine_similarity(mat_disease, Y=None, dense_output=True)
+
+mat_disease_proteinSim = sklearn.metrics.pairwise.cosine_similarity(mat_disease_protein, Y=None, dense_output=True)
+data = [mat_diseaseSim, mat_disease_proteinSim]
+print(mat_diseaseSim)
+print(mat_disease_proteinSim)
+
+disse2 SNF
+fused_network = snf.snf(data, K=20)
+
+print(fused_network.shape)
+
+print(fused_network)
+
+pd.DataFrame(fused_network).to_csv("C:/Users/nematpour-N-PC/Desktop/Ramin/Drug disease/CosineSNFDises.csv")
+
+#integrat1
+import numpy as np
+import pandas as pd
+
+def PerepaingData():
+    d='drug-disease-datasets/F-DrugSim.txt'
+    Drugsim=pd.read_csv(d, sep='\t', header=None)
+    print(Drugsim.shape)
+
+
+    Diseasesim = pd.read_csv('drug-disease-datasets/F-DiseaseSim.txt', sep='\t', header=None)
+    print(Diseasesim.shape)
+
+
+
+    drug_disease_int = pd.read_csv('drug-disease-datasets/F-drug-disease interactions.txt', sep='\t', header=None)
+    drug_disease_int.iloc[1:,0].to_csv("saved Diseasename.csv", index=False)
+    Diseasename = pd.read_csv("saved Diseasename.csv", header=0)
+
+    drug_disease_int.iloc[0,1:].to_csv("saved Drugname.csv", index=False)
+    Drugname = pd.read_csv("saved Drugname.csv", header=0)
+    
+    print(drug_disease_int.head(), drug_disease_int.shape)
+
+    Drugsim.insert(0, "-1", Drugname.values)
+    Diseasesim.insert(0, "-1", Diseasename.values)
+
+    pd.DataFrame(Drugsim).to_csv("Drugsim.csv",index=False)
+    pd.DataFrame(Diseasesim).to_csv("Diseasesim.csv",index=False)
+
+    print(Drugsim.shape)
+    print(Diseasesim.shape)
+
+
+
+    finalmatrix=[]
+    for i in range(len(drug_disease_int.iloc[:,0])-1): # putting disease names
+        for j in range(len(drug_disease_int.iloc[0,:])-1): # putting drug names
+            result = [drug_disease_int.iloc[0,j+1], drug_disease_int.iloc[i+1,0], drug_disease_int.loc[i+1][j+1]]
+            finalmatrix.append(result)
+
+    del drug_disease_int
+    pd.DataFrame(finalmatrix).to_csv("saved F_pairs.csv",index=False)
+    del finalmatrix
+
+    F = pd.read_csv("saved F_pairs.csv")
+    r, c = F.shape
+    print(r,c)
+    # list(range(0, r, len(DF.iloc[:,0])))
+    F.iloc[0,:]
+
+    #print(F)
+
+
+    for k in range(len(Drugsim.iloc[0,:])-1):
+        F[k + 3] = F['0'].map(Drugsim.set_index('-1')[k])
+    k += 1
+    for k in range(len(Diseasesim.iloc[0,:])-1):
+        F[k - 1 + len(Drugsim.iloc[0,:]) + 3] = F['1'].map(Diseasesim.set_index('-1')[k])
+    k += 1
+    pd.DataFrame(F).to_csv("F.csv",index=False)
+
+# F.to_csv("../finalDrug-Disease.csv", index=False, header=None)
+# del F
+    del Diseasename
+    del Drugsim
+    del Drugname
+    del Diseasesim
+    del F
+
+df='data/drug_name_568.txt'
+DF=pd.read_csv(df, header=None)\n",
+d='data/Drug disease/Drug_CosineSNF(chemStracture_DrugProtein_sideEffect).csv'\n",
+Drugsim=pd.read_csv(d, header=None)\n",
+print(Drugsim.shape)\n",
+
+Diseasesim = pd.read_csv('data/Drug disease/Disease_CosineSNF(DisPhenotype_DisProteinm).csv', header=None)\n",
+print(Diseasesim.shape)\n",
+
+
+
+
+
+Drugs_disease_interaction = pd.read_csv('C-drug-disease interactions.txt',sep = '\\t', header=None)\n",
+print(Drugs_disease_interaction.head())\n"
+for j in range(len(D)):\n",
+     druglist.insert(j,D.loc[j][0])
+for i in range(len(DF.loc[0]))
+     if not DF.loc[i][1] in (druglist):
+             print(i,DF.loc[i][1])
+             mismatch.insert(i,DF.loc[i][1])\n",
+             DF=DF.drop([i])\n",
+             drug=drug.drop([i],axis=0)\n",
+             drug=drug.drop([i],axis=1)"
+
+
+
+
+
+#oversamp3
+#smote
+from imblearn.over_sampling import SMOTE
+from imblearn.pipeline import make_pipeline
+
+smote_sampler = SMOTE(n_jobs=-1)
+# smote_pipeline = make_pipeline(RandomOverSampler(), SMOTE(n_jobs=-1))
+print(smote_sampler.get_params())
+X_smote , y_smote = smote_sampler.fit_resample(X_train.values[:,2:], y_train)
+X_smote.shape
+
+Counter(y_smote)
+
+dfsmote = pd.DataFrame(X_smote)
+dfsmote['y'] = y_smote
+dfsmote.head()
+
+print(dfsmote.shape)
+del X_smote, y_smote
+
+dfsmote.to_csv('/content/drive/MyDrive/F_Drug-Disease_SMOTE.csv', index=False)
+
+
+
+
+mport pandas as pd
+# import modin.pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix,classification_report,precision_score,\
+auc, precision_recall_curve, roc_curve
+# from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import Normalizer
+import tensorflow as tf
+import keras
+from tensorflow.keras.utils import to_categorical
+from keras.models import Sequential
+from keras.layers import Dense, Conv2D, Flatten, Softmax, Dropout, MaxPooling2D
+from keras import optimizers
+from keras import metrics as kmetr
+from tensorflow.keras.utils import plot_model
+import pydot
+from sklearn.metrics import matthews_corrcoef
+
+#### test & train split
+data = pd.read_csv('/content/drive/MyDrive/F_SMOTE.csv')
+data.head()
+
+dataTrain = data.iloc[int(0.4*len(data.iloc[1:,0])):,:]
+dataTest = data.iloc[:int(0.4*len(data.iloc[1:,0])),:]
+
+
+X_train = dataTrain.values[:,1:]
+y_train = dataTrain.values[:,0].astype(int)
+trainNum = len(X_train)
+print(trainNum)
+#del dataTrain
+
+X_test = dataTest.values[:,1:]
+y_test = dataTest.values[:,0].astype(int)
+testNum = len(X_test)
+#del data
+
+transformer = Normalizer().fit(X_train)  # fit does nothing.
+X_train = transformer.transform(X_train)
+X_test = transformer.transform(X_test)
+
+#reshape data to fit model
+X_train = X_train.reshape(trainNum,25,25,1)
+X_test = X_test.reshape(testNum,25,25,1)
+
+# y_train = y_train + 1
+# y_test  = y_test + 1
+# y_train = y_train / 2
+# y_test  = y_test / 2
+# print(y_train[0:5], y_test[0:5])
+
+#one-hot encode target column
+y_train = to_categorical(y_train)
+y_test = to_categorical(y_test)
+#del testNum
+#del trainNum
+
+
+
+#create model
+model = Sequential()
+#add model layers
+model.add(Conv2D(64, kernel_size=2, activation='tanh',\
+                 input_shape=(25,25,1)))
+# model.add(Conv2D(64, kernel_size=4, activation='relu', padding='same'))
+# model.add(MaxPooling2D(pool_size=(2, 2)))
+#model.add(Conv2D(128, kernel_size=4, activation='tanh'))
+model.add(Conv2D(64, kernel_size=4, activation='tanh'))
+model.add(Conv2D(32, kernel_size=4, activation='tanh'))
+model.add(Conv2D(16, kernel_size=4, activation='tanh'))
+model.add(Conv2D(8, kernel_size=4, activation='tanh'))
+model.add(MaxPooling2D(pool_size=(4, 4)))
+model.add(Flatten())
+model.add(Dense(32, activation='tanh'))
+model.add(Dropout(0.2))
+#model.add(Dense( 30, activation='tanh'))
+model.add(Dense(2, activation='softmax'))
+
+#model.add(Softmax(128))
+model.summary()
+
+adam = tf.optimizers.Adam(learning_rate=0.0001, beta_1=0.9, beta_2=0.999)
+# model.compile(loss='hinge', optimizer=adam, metrics=[kmetr.categorical_accuracy])
+model.compile(optimizer='nadam', loss='mse',\
+              metrics=['categorical_accuracy']) ## Minist
+
+### Load the model's saved weights.
+# model.load_weights('cnn_4_epoch.h5')
+
+class_weight = {0:50,
+                1: 50
+               }
+
+history = model.fit(X_train, y_train, validation_data=(X_test, y_test),
+                    epochs=5, class_weight=class_weight, batch_size = 100,
+                    shuffle=True, validation_split=0.0)
+# history = model.fit(X_train, y_train, epochs=1)
+
+### Saveing the Model
+model.save_weights('cnn_3_epoch.h5')
+
+
+print(dataTrain['y'].unique())
+print(dataTrain.groupby('y').size())
+
+_, accuracy = model.evaluate(X_train, y_train)
+print('Accuracy: %.2f' % (accuracy*100))
+
+# make probability predictions with the model
+predit = model.predict(X_test, verbose=0)
+#actual results for first 4 images in test set
+print(predit[:4])
+predit.shape
+#print(predit[ : ])
+
+
+
+prec, rec, thr = precision_recall_curve(y_test[:,0], predit[:,0])
+aupr_val = auc(rec, prec)
+fpr, tpr, thr = roc_curve(y_test[:,0], predit[:,0])
+auc_val = auc(fpr, tpr)
+print('AUPR=' +str(aupr_val),'AUC='+str(auc_val))
+print('AUPR: %2f' % (aupr_val*100))
+print('AUC: %2f' % (auc_val*100))
+
+
+import matplotlib.pyplot as plt
+fpr, tpr, thresholds = roc_curve(y_test[:,0], predit[:,0])
+plt.plot(fpr, tpr, color='blue',linewidth=2.2)
+plt.title('model AUC')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.ylim([0.5, 1.1])
+plt.legend(['AUC'], loc='lower right')
+plt.grid(color = 'green', linestyle = '--', linewidth = 0.7)
+plt.show()
+print('model AUC score :%2f' % (auc_val*100))
+
+
+from matplotlib import pyplot as plt
+#why  history = model.fit(X_test, y_test,validation_split = 0.01, epochs=5, batch_size=32)
+plt.figure(figsize=(15, 5))
+plt.plot(history.history['categorical_accuracy'] , color='red',linewidth=2.2)
+plt.plot(history.history['val_categorical_accuracy'], color='blue',linewidth=2.2)
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('no of epochs')
+plt.ylim([0.5, 1])
+plt.legend(['train', 'val'], loc='lower right')
+plt.grid(color = 'green', linestyle = '--', linewidth = 0.7)
+
+
+from IPython.core.pylabtools import figsize
+import matplotlib.pyplot as plt
+plt.figure(figsize= (15,5))
+plt.plot(history.history['loss'], color='red', linewidth=2.2)
+plt.plot(history.history['val_loss'], color='b',linewidth=2.2)
+plt.title('train/validation loss')
+plt.ylim([-1, 5])
+plt.ylabel('loss')
+plt.xlabel('Noepoch')
+plt.legend(['train', 'val'], loc='upper right')
+plt.grid(color = 'green', linestyle = '--', linewidth = 0.7)
+plt.show()
+
+pd.DataFrame(history.history).plot(figsize=(10,5),linewidth=2.2)
+plt.ylim([0, 7])
+plt.show()
+
+
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+# Create figure with secondary y-axis
+fig = make_subplots(specs=[[{"secondary_y": True}]])
+# Add traces
+fig.add_trace(
+    go.Scatter( y=history.history['val_loss'], name="val_loss"),
+    secondary_y=False,
+)
+fig.add_trace(
+    go.Scatter( y=history.history['loss'], name="loss"),
+    secondary_y=False,
+)
+fig.add_trace(
+    go.Scatter( y=history.history['val_categorical_accuracy'], name="val_categorical_accuracy"),
+    secondary_y=True,
+)
+fig.add_trace(
+    go.Scatter( y=history.history['categorical_accuracy'], name="val accuracy"),
+    secondary_y=True,
+)
+# Add figure title
+fig.update_layout(
+    title_text="Loss/Accuracy of CNN Model"
+)
+# Set x-axis title
+fig.update_xaxes(title_text="Epoch")
+
+# Set y-axes titles
+fig.update_yaxes(title_text="<b>primary</b> Loss", secondary_y=False)
+fig.update_yaxes(title_text="<b>secondary</b> Accuracy", secondary_y=True)
+fig.show()
+
+predicts = []
+for a,b in predit:
+    if a >=b:
+        predicts.append(0)
+    else:
+        predicts.append(1)
+len(predicts)
+
+
+from sklearn import metrics
+#cm = confusion_matrix(list(predicts), list((dataTest.values[:,0])))
+#print(cm)
+CR = classification_report(list((dataTest.values[:,0])),list(predicts))
+print(CR)
+confusion_matrix = metrics.confusion_matrix(list(predicts), list((dataTest.values[:,0])))
+
+cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = [False, True])
+
+cm_display.plot()
+plt.show()
+print(pd.DataFrame(predit))
+
+pd.DataFrame(predit).plot.density()
+
+
+pd.DataFrame(predit).iloc[:,0].plot.density()
+
+pd.DataFrame(predit).iloc[:,0].plot.density()
+
+fig, ax = plt.subplots()
+fig.set_size_inches(16, 8)
+
+# matplotlib histogram
+# plt.hist(pd.DataFrame(predit).iloc[:,1], color = 'blue', edgecolor = 'black',
+#          bins = int(200))
+
+# seaborn histogram
+sns.distplot(pd.DataFrame(predit).iloc[:,1], hist=True, kde=False,
+             bins=int(100), color = 'blue',
+             hist_kws={'edgecolor':'black'})
+
+# sns.distplot(pd.DataFrame(predit).iloc[:,0], hist=True, kde=True,
+#              bins=int(200), color = 'darkblue',
+#              hist_kws={'edgecolor':'black'},
+#              kde_kws={'linewidth': 4})
+# Add labels
+plt.title('frequency Histogram of Drugs')
+plt.xlabel('Interaction drugs Probability')
+plt.ylabel('frequency distribution')
+
+fig, ax = plt.subplots()
+fig.set_size_inches(16,8)
+
+# matplotlib histogram
+# plt.hist(pd.DataFrame(predit).iloc[:,1], color = 'blue', edgecolor = 'black',
+#          bins = int(200))
+
+# seaborn histogram
+
+sns.distplot(pd.DataFrame(predit).iloc[:,0], hist=True, kde=False,
+             bins=int(100), color = 'red',
+             hist_kws={'edgecolor':'black'})
+# sns.distplot(pd.DataFrame(predit).iloc[:,0], hist=True, kde=True,
+#              bins=int(200), color = 'darkblue',
+#              hist_kws={'edgecolor':'black'},
+#              kde_kws={'linewidth': 4})
+# Add labels
+plt.title('frequency Histogram of Drugs')
+plt.xlabel('None Interaction drugs Probability')
+plt.ylabel('frequency distribution')
+
+fig, ax = plt.subplots()
+fig.set_size_inches(16,8)
+
+# matplotlib histogram
+# plt.hist(pd.DataFrame(predit).iloc[:,1], color = 'blue', edgecolor = 'black',
+#          bins = int(200))
+
+# seaborn histogram
+sns.distplot(pd.DataFrame(predit).iloc[:,1], hist=True, kde=False,
+             bins=int(100), color = 'blue',
+             hist_kws={'edgecolor':'black'})
+
+sns.distplot(pd.DataFrame(predit).iloc[:,0], hist=True, kde=False,
+             bins=int(100), color = 'red',
+             hist_kws={'edgecolor':'black'})
+# sns.distplot(pd.DataFrame(predit).iloc[:,0], hist=True, kde=True,
+#              bins=int(200), color = 'darkblue',
+#              hist_kws={'edgecolor':'black'},
+#              kde_kws={'linewidth': 4})
+# Add labels
+plt.title('frequency Histogram of Drugs')
+plt.xlabel('all drugs Probability')
+plt.ylabel('frequency distribution')
